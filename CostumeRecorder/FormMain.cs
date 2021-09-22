@@ -49,6 +49,8 @@ namespace CostumeRecorder
         private bool isReset = false;
         #endregion
 
+        private bool _collision = false;
+
         Dictionary<string, string> JointHints; // Словарь подсказок для joints
         AppSettings appSet; // Настройки приложения
         ConnectionStatus costumeConnection = ConnectionStatus.Disconnected;
@@ -597,6 +599,7 @@ namespace CostumeRecorder
                 bool collision = Collision(positionLCurent, positionRCurent);
                 if (!collision)
                 {
+                    // Передача сигналов на робота
                     robot.LeftArm.SetJointAngles(qCurrentL);
 
                     robot.RightArm.SetJointAngles(qCurrentR);
@@ -610,20 +613,33 @@ namespace CostumeRecorder
             var points = positionL.X.Zip(positionL.Y, (x, y) => new PointF((float)x, (float)y)).ToArray();
             bool collision = Collide.ArmToArm(positionL, positionR, appSet.CollisionK, out double[] _, out double[] _);
 
-            if (tbDiagnostic.InvokeRequired)
+            if (_collision != collision)
             {
-                if (collision)
-                    tbDiagnostic.BeginInvoke(new Action(() => tbDiagnostic.Text = "Угроза столкновения!"));
+                _collision = collision;
+                
+                if (tbDiagnostic.InvokeRequired)
+                {
+                    if (collision)
+                        tbDiagnostic.BeginInvoke(new Action(() => {
+                            tbDiagnostic.BackColor = Color.Red;
+                            tbDiagnostic.ForeColor = Color.White;
+                            tbDiagnostic.Text = "Угроза столкновения!";
+                        }));
+                    else
+                        tbDiagnostic.BeginInvoke(new Action(() => {
+                            tbDiagnostic.BackColor = Color.White;
+                            tbDiagnostic.ForeColor = Color.Red;
+                            tbDiagnostic.Text = String.Empty;
+                        }));
+                }
                 else
-                    tbDiagnostic.BeginInvoke(new Action(() => tbDiagnostic.Text = String.Empty));
-            }
-            else
-            {
-                if (collision)
-                    tbDiagnostic.Text = "Угроза столкновения!";
-                else
-                    tbDiagnostic.Text = String.Empty;
-            }
+                {
+                    if (collision)
+                        tbDiagnostic.Text = "Угроза столкновения!";
+                    else
+                        tbDiagnostic.Text = String.Empty;
+                }
+            }            
 
             return collision;
         }
