@@ -1,0 +1,12 @@
+CostumeRecorder/.vs/CostumeRecorder/v16/.suo
+CostumeRecorder/bin/
+CostumeRecorder/obj/
+CostumeRecorder/packages/
+packages/MathNet.Numerics.4.9.0/.signature.p7s
+packages/
+RoboKinematics/bin/
+RoboKinematics/obj/
+SARSimulatorControl/bin/
+SARSimulatorControl/obj/
+SARSimulatorControl/.vs/SARSimulatorControl/v16/.suo
+.vs/
