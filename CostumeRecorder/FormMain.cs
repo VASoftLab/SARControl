@@ -454,6 +454,8 @@ namespace CostumeRecorder
             // При выходе сохраняем настройки
             if (appSet != null)
                 appSet.Save();
+            // Разрыв соединения
+            _Costume.DisposeA(true);
         }
 
         private void btCostumeConnection_Click(object sender, EventArgs e)

@@ -370,6 +370,14 @@ namespace CostumeRecorder.Core
             // TODO: раскомментировать следующую строку, если метод завершения переопределен выше.
             // GC.SuppressFinalize(this);
         }
+
+        public void DisposeA(bool disposing)
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(disposing);
+            // TODO: раскомментировать следующую строку, если метод завершения переопределен выше.
+            // GC.SuppressFinalize(this);
+        }
         #endregion
     }
 }
