@@ -194,7 +194,7 @@ namespace CostumeRecorder
                     QLWristS = Utils.DegreesToRadians(QLWristS);
 
                 tbLWristS.Text = String.Format("{0:0.00}", _Costume.Joints.Where(j => j.Name == "L.WristS").FirstOrDefault().Value);
-            });            
+            });
 
             //tbLClavicle.Invoke((MethodInvoker)delegate {
             //    tbLClavicle.Text = _Costume.Joints.Where(j => j.Name == "L.Clavicle").FirstOrDefault().Value.ToString();
@@ -255,7 +255,7 @@ namespace CostumeRecorder
                     QRWristS = Utils.DegreesToRadians(QRWristS);
 
                 tbRWristS.Text = String.Format("{0:0.00}", QRWristS);
-            });            
+            });
 
             //tbRClavicle.Invoke((MethodInvoker)delegate {
             //    tbRClavicle.Text = _Costume.Joints.Where(j => j.Name == "R.Clavicle").FirstOrDefault().Value.ToString();
@@ -593,7 +593,7 @@ namespace CostumeRecorder
                 qCurrentR[2] = QRElbowR;
                 qCurrentR[3] = QRElbow;
                 qCurrentR[4] = QRWristR;
-                qCurrentR[5] = QRWristF;                
+                qCurrentR[5] = QRWristF;
 
                 var positionLCurent = robot.LeftArm.FK(qCurrentL);
                 var positionRCurent = robot.RightArm.FK(qCurrentR);
@@ -601,12 +601,22 @@ namespace CostumeRecorder
                 bool collision = Collision(positionLCurent, positionRCurent);
                 if (!collision)
                 {
-                    // Передача сигналов на робота
-                    robot.LeftArm.SetJointAngles(qCurrentL);
+                    for (var i = 0; i < qCurrentR.Length; i++)
+                    {
+                        if (qCurrentL[i] < robot.LeftArm.DenavitHartenberg.Joints[i].LowerLimit)
+                            qCurrentL[i] = robot.LeftArm.DenavitHartenberg.Joints[i].LowerLimit;
+                        if (qCurrentL[i] > robot.LeftArm.DenavitHartenberg.Joints[i].UpperLimit)
+                            qCurrentL[i] = robot.LeftArm.DenavitHartenberg.Joints[i].UpperLimit;
 
-                    robot.RightArm.SetJointAngles(qCurrentR);
-                }                
-
+                        if (qCurrentR[i] < robot.RightArm.DenavitHartenberg.Joints[i].LowerLimit)
+                            qCurrentR[i] = robot.RightArm.DenavitHartenberg.Joints[i].LowerLimit;
+                        if (qCurrentR[i] > robot.RightArm.DenavitHartenberg.Joints[i].UpperLimit)
+                            qCurrentR[i] = robot.RightArm.DenavitHartenberg.Joints[i].UpperLimit;
+                    }
+                }
+                // Передача сигналов на робота
+                robot.LeftArm.SetJointAngles(qCurrentL);
+                robot.RightArm.SetJointAngles(qCurrentR);
             }
         }
 
@@ -618,17 +628,19 @@ namespace CostumeRecorder
             if (_collision != collision)
             {
                 _collision = collision;
-                
+
                 if (tbDiagnostic.InvokeRequired)
                 {
                     if (collision)
-                        tbDiagnostic.BeginInvoke(new Action(() => {
+                        tbDiagnostic.BeginInvoke(new Action(() =>
+                        {
                             tbDiagnostic.BackColor = Color.Red;
                             tbDiagnostic.ForeColor = Color.White;
                             tbDiagnostic.Text = "Угроза столкновения!";
                         }));
                     else
-                        tbDiagnostic.BeginInvoke(new Action(() => {
+                        tbDiagnostic.BeginInvoke(new Action(() =>
+                        {
                             tbDiagnostic.BackColor = Color.White;
                             tbDiagnostic.ForeColor = Color.Red;
                             tbDiagnostic.Text = String.Empty;
@@ -641,7 +653,7 @@ namespace CostumeRecorder
                     else
                         tbDiagnostic.Text = String.Empty;
                 }
-            }            
+            }
 
             return collision;
         }
@@ -649,7 +661,7 @@ namespace CostumeRecorder
         private void btRobotConnection_Click(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
-            
+
             String IP = appSet.RobotIP;
             Int32 Port = appSet.RobotPort;
 
